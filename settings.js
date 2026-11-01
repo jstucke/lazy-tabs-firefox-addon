@@ -4,14 +4,14 @@
 
 "use strict";
 
-// Gemeinsam genutzt von Hintergrundskript und Einstellungsseite.
+// Shared by the background script and the options page.
 
 /* eslint-disable no-unused-vars */
 const DEFAULT_SETTINGS = {
-  middleClick: false, // Mittelklick auf Links -> Lazy-Tab
-  ctrlClick: false, // Strg+Klick (Mac: Cmd+Klick) auf Links -> Lazy-Tab
+  middleClick: false, // middle-click on links -> lazy tab
+  ctrlClick: false, // Ctrl+click (Mac: Cmd+click) on links -> lazy tab
 };
 
-// Wird nur für die Klick-Optionen gebraucht und erst beim Einschalten erfragt.
-// Ohne sie müssen beide Optionen aus sein (content.js geht davon aus).
+// Only needed for the click options and requested when one is switched on.
+// Without it both options must be off (content.js relies on that).
 const HOST_PERMISSION = { origins: ["<all_urls>"] };

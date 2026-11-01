@@ -5,9 +5,9 @@
 "use strict";
 
 /**
- * Führt Aufgaben nacheinander aus. Das zurückgegebene Promise liefert das
- * Ergebnis bzw. den Fehler der jeweiligen Aufgabe; ein Fehler blockiert die
- * folgenden Aufgaben nicht.
+ * Runs tasks one after another. The returned promise resolves or rejects with
+ * the result of the respective task; an error does not block the following
+ * tasks.
  */
 function createQueue() {
   let tail = Promise.resolve();
@@ -18,10 +18,10 @@ function createQueue() {
   };
 }
 
-// Tab-Erstellung serialisieren, damit schnelle Mehrfachklicks die Reihenfolge behalten
+// Serialize tab creation so that quick successive clicks keep their order
 const enqueueTab = createQueue();
 
-const logOpenError = (err) => console.error("Lazy-Tab konnte nicht geöffnet werden:", err);
+const logOpenError = (err) => console.error("Could not open lazy tab:", err);
 
 const MENU_ID = "open-link-lazy";
 
@@ -39,7 +39,7 @@ browser.menus.create({
   contexts: ["bookmark"],
 });
 
-// Menütext je nach Lesezeichen / Ordner anpassen
+// Adjust the menu title for bookmark vs. folder
 browser.menus.onShown.addListener(async (info) => {
   if (!info.contexts.includes("bookmark") || !info.bookmarkId) return;
   try {
@@ -52,7 +52,7 @@ browser.menus.onShown.addListener(async (info) => {
     });
     browser.menus.refresh();
   } catch (_) {
-    // z. B. Wurzelordner – Menü einfach unverändert lassen
+    // e.g. root folder – just leave the menu unchanged
   }
 });
 
@@ -64,7 +64,7 @@ browser.menus.onClicked.addListener((info, tab) => {
   }
 });
 
-/** Wie Firefox' „Alle in Tabs öffnen“: nur direkte Lesezeichen des Ordners. */
+/** Like Firefox's "Open All in Tabs": only the folder's direct bookmarks. */
 async function openBookmarkLazy(bookmarkId) {
   const [node] = await browser.bookmarks.get(bookmarkId);
   const items =
@@ -73,7 +73,7 @@ async function openBookmarkLazy(bookmarkId) {
       : [node];
 
   const win = await browser.windows.getLastFocused();
-  // Ein fehlerhaftes Lesezeichen soll die übrigen nicht verhindern
+  // A failing bookmark must not prevent the others from opening
   const results = await Promise.allSettled(
     items.map((item) => enqueueTab(() => createLazyTab(item.url, item.title, null, win.id))),
   );
@@ -84,18 +84,18 @@ async function openBookmarkLazy(bookmarkId) {
 
 browser.runtime.onMessage.addListener((message, sender) => {
   if (message && message.type === "openLazy" && message.url && sender.tab) {
-    // Bei einem Fehler lehnt das Promise ab, und das Content-Script öffnet den
-    // Link stattdessen selbst – so geht der Klick nicht verloren.
+    // On error the promise rejects and the content script opens the link
+    // itself instead – so the click is not lost.
     return openLazyTab(message.url, message.title, sender.tab).then(() => true);
   }
   return undefined;
 });
 
-// --- Tab-Reihenfolge wie bei Firefox selbst -------------------------------
-// Mehrere Links nacheinander aus demselben Tab geöffnet landen in Klick-
-// Reihenfolge hinter dem aktuellen Tab. Beim Tab-Wechsel beginnt die Kette neu.
+// --- Tab order like Firefox itself -----------------------------------------
+// Several links opened one after another from the same tab end up behind the
+// current tab in click order. Switching tabs starts a new chain.
 
-/** openerTabId -> zuletzt von uns eingefügter Tab */
+/** openerTabId -> tab we inserted last */
 const lastInserted = new Map();
 
 browser.tabs.onActivated.addListener(() => lastInserted.clear());
@@ -113,10 +113,10 @@ async function insertionIndex(openerTab) {
       const last = await browser.tabs.get(lastId);
       if (last.windowId === openerTab.windowId) return last.index + 1;
     } catch (_) {
-      // Tab existiert nicht mehr
+      // Tab no longer exists
     }
   }
-  // Index des Openers frisch holen, er kann sich seit dem Klick verschoben haben
+  // Fetch the opener's index again, it may have moved since the click
   const opener = await browser.tabs.get(openerTab.id);
   return opener.index + 1;
 }
@@ -126,8 +126,8 @@ function openLazyTab(url, title, openerTab) {
 }
 
 /**
- * Mit openerTab: neben dem Opener einfügen (Links).
- * Ohne openerTab: am Ende von windowId anhängen (Lesezeichen).
+ * With openerTab: insert next to the opener (links).
+ * Without openerTab: append at the end of windowId (bookmarks).
  */
 async function createLazyTab(url, title, openerTab, windowId) {
   const base = { url, active: false };
@@ -136,7 +136,7 @@ async function createLazyTab(url, title, openerTab, windowId) {
     base.index = await insertionIndex(openerTab);
     base.openerTabId = openerTab.id;
     if (openerTab.cookieStoreId) {
-      base.cookieStoreId = openerTab.cookieStoreId; // gleicher Container
+      base.cookieStoreId = openerTab.cookieStoreId; // same container
     }
   } else {
     base.windowId = windowId;
@@ -150,19 +150,19 @@ async function createLazyTab(url, title, openerTab, windowId) {
       title: (title && title.trim()) || url,
     });
   } catch (err) {
-    // Manche URLs (about:, file:, …) dürfen nicht entladen erstellt werden –
-    // dann wenigstens normal im Hintergrund öffnen.
-    console.warn("Entladener Tab nicht möglich, öffne normal:", err);
+    // Some URLs (about:, file:, …) cannot be created discarded –
+    // then at least open them normally in the background.
+    console.warn("Cannot create discarded tab, opening normally:", err);
     created = await browser.tabs.create(base);
   }
   if (openerTab) lastInserted.set(openerTab.id, created.id);
 }
 
-// --- Content-Script nur bei Bedarf -----------------------------------------
-// Mittelklick/Strg+Klick brauchen ein Content-Script auf allen Seiten und damit
-// die Berechtigung <all_urls>. Die ist optional: Die Einstellungsseite fragt
-// beim Einschalten danach. Hier wird das Script passend (de)registriert und
-// die Berechtigung wieder abgegeben, sobald die letzte Option ausgeschaltet wird.
+// --- Content script only when needed ---------------------------------------
+// Middle-click/Ctrl+click need a content script on all pages and therefore the
+// <all_urls> permission. It is optional: the options page requests it when an
+// option is switched on. Here the script is (un)registered accordingly and the
+// permission is released again once the last option is switched off.
 
 const CONTENT_SCRIPT = "content.js";
 let registration = null;
@@ -170,12 +170,12 @@ const enqueueSync = createQueue();
 
 /**
  * @param {object} [opts]
- * @param {boolean} [opts.startup] Browserstart: nur aktive Tabs nachrüsten
- * @param {boolean} [opts.settingsChanged] Auslöser war eine geänderte Einstellung
+ * @param {boolean} [opts.startup] browser start: only inject into active tabs
+ * @param {boolean} [opts.settingsChanged] triggered by a changed setting
  */
 function syncContentScript(opts = {}) {
   return enqueueSync(() => doSync(opts)).catch((err) =>
-    console.error("Content-Script-Sync fehlgeschlagen:", err),
+    console.error("Content script sync failed:", err),
   );
 }
 
@@ -185,10 +185,10 @@ async function doSync({ startup = false, settingsChanged = false }) {
   const granted = await browser.permissions.contains(HOST_PERMISSION);
 
   if (wanted && !granted) {
-    // Berechtigung fehlt (z. B. in about:addons entzogen): Optionen abschalten,
-    // damit Einstellungsseite und Verhalten übereinstimmen.
+    // Permission missing (e.g. revoked in about:addons): switch the options
+    // off so that the options page and the behavior match.
     await browser.storage.local.set({ middleClick: false, ctrlClick: false });
-    return; // storage.onChanged stößt den nächsten Sync an
+    return; // storage.onChanged triggers the next sync
   }
 
   if (wanted && !registration) {
@@ -204,25 +204,25 @@ async function doSync({ startup = false, settingsChanged = false }) {
     registration = null;
   }
 
-  // Nur wenn gerade eine Option ausgeschaltet wurde – nicht bei permissions.onAdded,
-  // denn beim Einschalten wird die Berechtigung erteilt, bevor die Einstellung
-  // gespeichert ist. Von Hand in about:addons erteilter Zugriff bleibt bestehen.
+  // Only when an option was just switched off – not on permissions.onAdded,
+  // because when switching on, the permission is granted before the setting is
+  // stored. Access granted manually in about:addons is kept.
   if (!wanted && granted && settingsChanged) {
     await browser.permissions.remove(HOST_PERMISSION);
   }
 }
 
 /**
- * Registrierte Scripts greifen erst beim nächsten Laden – offene Tabs nachrüsten.
- * Beim Browserstart nur die aktiven Tabs, um die Sitzungswiederherstellung nicht
- * auszubremsen; die übrigen bekommen das Script beim (Neu-)Laden.
+ * Registered scripts only apply on the next page load – inject into open tabs.
+ * On browser start only into the active tabs, so session restore is not slowed
+ * down; the other tabs get the script when they (re)load.
  */
 async function injectIntoOpenTabs({ activeOnly }) {
   const tabs = await browser.tabs.query(activeOnly ? { active: true } : { discarded: false });
   await Promise.all(
     tabs.map((tab) =>
       browser.tabs.executeScript(tab.id, { file: CONTENT_SCRIPT, allFrames: true }).catch(() => {
-        // Geschützte Seiten (about:, addons.mozilla.org, …) – ignorieren
+        // Protected pages (about:, addons.mozilla.org, …) – ignore
       }),
     ),
   );

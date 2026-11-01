@@ -4,16 +4,16 @@
 
 "use strict";
 
-// Das Skript wird sowohl per contentScripts.register als auch beim Einschalten
-// in schon offene Tabs eingefügt – doppelte Listener verhindern.
+// The script is injected both via contentScripts.register and, when an option
+// is switched on, into already open tabs – prevent duplicate listeners.
 (() => {
   if (globalThis.lazyBackgroundTabsLoaded) return;
   globalThis.lazyBackgroundTabsLoaded = true;
 
-  // Fängt Mittelklick und Strg+Klick (Mac: Cmd+Klick) auf Links ab und lässt das
-  // Hintergrundskript stattdessen einen entladenen Tab öffnen.
-  // Shift/Alt-Kombinationen (Vordergrund-Tab, neues Fenster, Speichern) bleiben
-  // beim normalen Firefox-Verhalten.
+  // Intercepts middle-click and Ctrl+click (Mac: Cmd+click) on links and lets the
+  // background script open a discarded tab instead.
+  // Shift/Alt combinations (foreground tab, new window, save) keep the normal
+  // Firefox behavior.
 
   function findLink(event) {
     for (const node of event.composedPath()) {
@@ -27,7 +27,7 @@
   }
 
   function linkUrl(link) {
-    // SVG-<a> hat kein String-href, daher über das Attribut auflösen
+    // SVG <a> has no string href, so resolve it via the attribute
     const raw = typeof link.href === "string" ? link.href : link.getAttribute("href");
     try {
       return new URL(raw, document.baseURI);
@@ -53,15 +53,16 @@
     browser.runtime
       .sendMessage({ type: "openLazy", url: url.href, title })
       .catch(() => {
-        // Add-on wurde z. B. neu geladen und dieses Skript ist verwaist –
-        // der Klick soll trotzdem nicht verloren gehen.
+        // E.g. the add-on was reloaded and this script is orphaned, or opening
+        // the lazy tab failed – the click must not be lost anyway.
         window.open(url.href, "_blank", "noopener");
       });
   }
 
-  // Einstellungen laden und Änderungen sofort übernehmen (ohne Seiten-Reload).
-  // Bewusst ohne settings.js: Das Script wird als einzelne Datei eingefügt, und
-  // ohne erteilte Berechtigung sind beide Optionen ohnehin aus, also false als Startwert.
+  // Load the settings and apply changes immediately (without a page reload).
+  // Deliberately without settings.js: the script is injected as a single file,
+  // and without the granted permission both options are off anyway, so false
+  // is the initial value.
   const settings = { middleClick: false, ctrlClick: false };
   browser.storage.local.get(settings).then((stored) => Object.assign(settings, stored));
   browser.storage.onChanged.addListener((changes, area) => {
@@ -71,8 +72,8 @@
     }
   });
 
-  // Bubble-Phase: Seiten, die den Klick selbst behandeln (preventDefault),
-  // haben Vorrang.
+  // Bubble phase: pages that handle the click themselves (preventDefault)
+  // take precedence.
   window.addEventListener("auxclick", (e) => handle(e, settings.middleClick && e.button === 1));
   window.addEventListener("click", (e) =>
     handle(e, settings.ctrlClick && e.button === 0 && (e.ctrlKey || e.metaKey)),

@@ -17,16 +17,16 @@ const checkbox = (key) => document.getElementById(key);
 async function onToggle(key) {
   const box = checkbox(key);
   if (box.checked) {
-    // Muss direkt im Klick-Handler passieren (vor jedem anderen await),
-    // sonst lehnt Firefox die Anfrage ab.
+    // Must happen directly in the click handler (before any other await),
+    // otherwise Firefox rejects the request.
     const granted = await browser.permissions.request(HOST_PERMISSION);
     if (!granted) {
       box.checked = false;
       return;
     }
   }
-  // Das Hintergrundskript gibt den Zugriff auf alle Webseiten wieder ab,
-  // sobald die letzte Option ausgeschaltet ist.
+  // The background script releases the access to all websites again
+  // as soon as the last option is switched off.
   await browser.storage.local.set({ [key]: box.checked });
 }
 
@@ -39,10 +39,10 @@ async function init() {
   for (const key of KEYS) {
     checkbox(key).checked = granted && settings[key];
     checkbox(key).addEventListener("change", () => onToggle(key));
-    checkbox(key).disabled = false; // erst jetzt bedienbar, sonst ginge ein früher Klick verloren
+    checkbox(key).disabled = false; // only usable now, otherwise an early click would be lost
   }
 
-  // Änderungen von außen übernehmen (z. B. Berechtigung in about:addons entzogen)
+  // Apply external changes (e.g. permission revoked in about:addons)
   browser.storage.onChanged.addListener((changes, area) => {
     if (area !== "local") return;
     for (const key of KEYS) {

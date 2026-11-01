@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
-  <!-- Vereinfachte Variante für 16 px (Kontextmenüs) -->
+  <!-- Simplified variant for 16 px (context menus) -->
   <path fill="#6f42e8" d="M0 16C2 16 2.5 15 2.5 14V3.5C2.5 1.8 3.3 1 5 1H11C12.7 1 13.5 1.8 13.5 3.5V14C13.5 15 14 16 16 16Z"/>
   <g fill="#fff">
     <rect x="5" y="3" width="6" height="1.5"/>
