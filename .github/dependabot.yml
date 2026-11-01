@@ -1,0 +1,15 @@
+# Keeps the pinned GitHub Actions and the web-ext dev dependency up to date.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7 # only propose releases that are at least a week old
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7 # only propose releases that are at least a week old

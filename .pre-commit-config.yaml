@@ -1,0 +1,82 @@
+# Checks before every commit – the CI runs exactly the same hooks.
+# Setup once:
+#   pre-commit install
+# Run manually on all files:
+#   pre-commit run --all-files
+#
+# The Node-based hooks bring their own Node.js (installed by pre-commit), so they
+# also work with an older system Node.
+
+repos:
+  # --- General file hygiene
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # frozen: v6.0.0
+    hooks:
+      - id: check-json
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: detect-private-key
+      - id: check-added-large-files # e.g. screenshots added by accident
+        args: [--maxkb=500]
+      - id: end-of-file-fixer
+        exclude: ^LICENSE$ # keep the license text verbatim
+      - id: trailing-whitespace
+        exclude: ^LICENSE$
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  # --- Spelling (English text only)
+  - repo: https://github.com/codespell-project/codespell
+    rev: 57b21406f092110c18776e39b0bda50d37c945c8 # frozen: v2.4.3
+    hooks:
+      - id: codespell
+        exclude: ^(LICENSE|package-lock\.json|_locales/(?!en/).*)$
+
+  # --- GitHub Actions: schema and security
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0494aa7fa1314e98913a41227d8f0a515b2c1049 # frozen: 0.38.2
+    hooks:
+      - id: check-github-workflows
+      - id: check-dependabot
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: c92afdf2c6ca336aaa8f39e2bd8d48f62dbd8e1f # frozen: v1.31.1
+    hooks:
+      - id: zizmor
+
+  # --- Add-on code
+  - repo: local
+    hooks:
+      - id: prettier
+        name: Prettier (formatting)
+        language: node
+        language_version: 24.22.0
+        additional_dependencies: [prettier@3.9.10]
+        entry: prettier --write --ignore-unknown
+        types_or: [javascript, json, yaml, markdown, html, css]
+
+      - id: eslint
+        name: ESLint
+        language: node
+        language_version: 24.22.0
+        additional_dependencies: [eslint@10.13.0]
+        entry: eslint --max-warnings 0
+        files: \.m?js$
+
+      - id: check-locales
+        name: Translations
+        language: node
+        language_version: 24.22.0
+        entry: node scripts/check-locales.mjs
+        files: ^(_locales/.*|manifest\.json|[^/]+\.(js|html))$
+        pass_filenames: false
+
+      - id: web-ext-lint
+        name: web-ext lint
+        language: node
+        language_version: 24.22.0
+        # Keep in sync with the web-ext version in package.json (used for the build)
+        additional_dependencies: [web-ext@10.8.0]
+        entry: web-ext lint
+        files: ^(_locales/.*|icons/.*|manifest\.json|package\.json|[^/]+\.(js|html))$
+        pass_filenames: false
