@@ -11,10 +11,16 @@ Useful for opening many tabs at once (e.g. a whole bookmark folder) without hogg
   Like Firefox's own *Open All in Tabs*, but the tabs are only loaded when selected.
 - **Single bookmarks:** right-click → *Open in Lazy Tab*.
 - **Links:** right-click → *Open Link in Lazy Tab*.
-- **Optional:** middle-click and/or Ctrl+click on links open lazy tabs (configurable in the add-on settings,
-  middle-click is off by default).
+- **Optional:** middle-click and/or Ctrl+click on links open lazy tabs (both off by default,
+  enable them in the add-on settings).
 
 New tabs are placed next to the current tab in click order and keep the current tab's container.
+
+## Permissions
+
+At install the add-on only asks for access to your bookmarks.
+Access to all websites is requested only when you enable middle-click or Ctrl+click in the settings
+(the add-on needs it to detect clicks on links) and is released again when both are turned off.
 
 ## Languages
 
@@ -41,7 +47,8 @@ npx web-ext build    # create ZIP in web-ext-artifacts/
 ## How it works
 
 The add-on uses `browser.tabs.create({ discarded: true, … })`, which creates a tab in the unloaded state.
-A content script intercepts middle-/Ctrl-clicks on links (only if enabled) and asks the background script to open them.
+If middle-click or Ctrl+click is enabled, a content script is registered on demand (`contentScripts.register`)
+that intercepts these clicks on links and asks the background script to open them.
 
 ## License
 

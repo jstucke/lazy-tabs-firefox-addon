@@ -11,16 +11,46 @@ function localize() {
   }
 }
 
+const KEYS = Object.keys(DEFAULT_SETTINGS);
+const checkbox = (key) => document.getElementById(key);
+
+async function onToggle(key) {
+  const box = checkbox(key);
+  if (box.checked) {
+    // Muss direkt im Klick-Handler passieren (vor jedem anderen await),
+    // sonst lehnt Firefox die Anfrage ab.
+    const granted = await browser.permissions.request(HOST_PERMISSION);
+    if (!granted) {
+      box.checked = false;
+      return;
+    }
+  }
+  await browser.storage.local.set({ [key]: box.checked });
+
+  // Keine Klick-Option mehr aktiv -> Zugriff auf alle Webseiten wieder abgeben
+  if (!KEYS.some((k) => checkbox(k).checked)) {
+    await browser.permissions.remove(HOST_PERMISSION);
+  }
+}
+
 async function init() {
   localize();
-  const settings = await browser.storage.local.get(DEFAULT_SETTINGS);
-  for (const key of Object.keys(DEFAULT_SETTINGS)) {
-    const checkbox = document.getElementById(key);
-    checkbox.checked = settings[key];
-    checkbox.addEventListener("change", () => {
-      browser.storage.local.set({ [key]: checkbox.checked });
-    });
+  const [settings, granted] = await Promise.all([
+    browser.storage.local.get(DEFAULT_SETTINGS),
+    browser.permissions.contains(HOST_PERMISSION),
+  ]);
+  for (const key of KEYS) {
+    checkbox(key).checked = granted && settings[key];
+    checkbox(key).addEventListener("change", () => onToggle(key));
   }
+
+  // Änderungen von außen übernehmen (z. B. Berechtigung in about:addons entzogen)
+  browser.storage.onChanged.addListener((changes, area) => {
+    if (area !== "local") return;
+    for (const key of KEYS) {
+      if (key in changes) checkbox(key).checked = changes[key].newValue ?? DEFAULT_SETTINGS[key];
+    }
+  });
 }
 
 init();

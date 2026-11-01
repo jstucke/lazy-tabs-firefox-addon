@@ -4,9 +4,15 @@
 
 "use strict";
 
-// Gemeinsame Standardwerte für Content-Script und Einstellungsseite.
-// eslint-disable-next-line no-unused-vars
-const DEFAULT_SETTINGS = {
+// Gemeinsam genutzt von Hintergrundskript, Content-Script und Einstellungsseite.
+// `var` statt `const`, damit erneutes Einfügen ins selbe Frame keinen
+// Redeklarationsfehler auslöst.
+
+/* eslint-disable no-unused-vars, no-var */
+var DEFAULT_SETTINGS = {
   middleClick: false, // Mittelklick auf Links -> Lazy-Tab
-  ctrlClick: true, // Strg+Klick (Mac: Cmd+Klick) auf Links -> Lazy-Tab
+  ctrlClick: false, // Strg+Klick (Mac: Cmd+Klick) auf Links -> Lazy-Tab
 };
+
+// Wird nur für die Klick-Optionen gebraucht und erst beim Einschalten erfragt.
+var HOST_PERMISSION = { origins: ["<all_urls>"] };
