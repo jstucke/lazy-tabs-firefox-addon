@@ -49,14 +49,14 @@
     event.preventDefault();
     event.stopPropagation();
 
-    const title = (link.textContent || link.getAttribute("title") || "").replace(/\s+/g, " ").trim();
-    browser.runtime
-      .sendMessage({ type: "openLazy", url: url.href, title })
-      .catch(() => {
-        // E.g. the add-on was reloaded and this script is orphaned, or opening
-        // the lazy tab failed – the click must not be lost anyway.
-        window.open(url.href, "_blank", "noopener");
-      });
+    const title = (link.textContent || link.getAttribute("title") || "")
+      .replace(/\s+/g, " ")
+      .trim();
+    browser.runtime.sendMessage({ type: "openLazy", url: url.href, title }).catch(() => {
+      // E.g. the add-on was reloaded and this script is orphaned, or opening
+      // the lazy tab failed – the click must not be lost anyway.
+      window.open(url.href, "_blank", "noopener");
+    });
   }
 
   // Load the settings and apply changes immediately (without a page reload).

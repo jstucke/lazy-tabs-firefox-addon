@@ -69,7 +69,9 @@ async function openBookmarkLazy(bookmarkId) {
   const [node] = await browser.bookmarks.get(bookmarkId);
   const items =
     node.type === "folder"
-      ? (await browser.bookmarks.getChildren(bookmarkId)).filter((c) => c.type === "bookmark" && c.url)
+      ? (await browser.bookmarks.getChildren(bookmarkId)).filter(
+          (c) => c.type === "bookmark" && c.url,
+        )
       : [node];
 
   const win = await browser.windows.getLastFocused();
