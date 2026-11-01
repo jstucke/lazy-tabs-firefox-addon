@@ -59,13 +59,15 @@
       });
   }
 
-  // Einstellungen laden und Änderungen sofort übernehmen (ohne Seiten-Reload)
-  let settings = { ...DEFAULT_SETTINGS };
-  browser.storage.local.get(DEFAULT_SETTINGS).then((s) => (settings = s));
+  // Einstellungen laden und Änderungen sofort übernehmen (ohne Seiten-Reload).
+  // Bewusst ohne settings.js: Das Script wird als einzelne Datei eingefügt, und
+  // ohne erteilte Berechtigung sind beide Optionen ohnehin aus, also false als Startwert.
+  const settings = { middleClick: false, ctrlClick: false };
+  browser.storage.local.get(settings).then((stored) => Object.assign(settings, stored));
   browser.storage.onChanged.addListener((changes, area) => {
     if (area !== "local") return;
     for (const [key, { newValue }] of Object.entries(changes)) {
-      if (key in DEFAULT_SETTINGS) settings[key] = newValue ?? DEFAULT_SETTINGS[key];
+      if (key in settings) settings[key] = newValue ?? false;
     }
   });
 

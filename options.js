@@ -25,12 +25,9 @@ async function onToggle(key) {
       return;
     }
   }
+  // Das Hintergrundskript gibt den Zugriff auf alle Webseiten wieder ab,
+  // sobald die letzte Option ausgeschaltet ist.
   await browser.storage.local.set({ [key]: box.checked });
-
-  // Keine Klick-Option mehr aktiv -> Zugriff auf alle Webseiten wieder abgeben
-  if (!KEYS.some((k) => checkbox(k).checked)) {
-    await browser.permissions.remove(HOST_PERMISSION);
-  }
 }
 
 async function init() {
@@ -42,6 +39,7 @@ async function init() {
   for (const key of KEYS) {
     checkbox(key).checked = granted && settings[key];
     checkbox(key).addEventListener("change", () => onToggle(key));
+    checkbox(key).disabled = false; // erst jetzt bedienbar, sonst ginge ein früher Klick verloren
   }
 
   // Änderungen von außen übernehmen (z. B. Berechtigung in about:addons entzogen)
