@@ -1,0 +1,42 @@
+{
+  "extensionName": {
+    "message": "Lazy Background Tabs",
+    "description": "Name of the add-on."
+  },
+  "extensionDescription": {
+    "message": "Open tabs in the background that only load when you select them – for bookmark folders, links and optionally middle-click.",
+    "description": "Short description of the add-on (max. 132 characters)."
+  },
+  "menuOpenLink": {
+    "message": "Open Link in Lazy Tab",
+    "description": "Context menu entry on a link."
+  },
+  "menuOpenBookmark": {
+    "message": "Open in Lazy Tab",
+    "description": "Context menu entry on a single bookmark."
+  },
+  "menuOpenFolder": {
+    "message": "Open All in Lazy Tabs",
+    "description": "Context menu entry on a bookmark folder (counterpart to Firefox's 'Open All in Tabs')."
+  },
+  "optMiddleClick": {
+    "message": "Middle-click on a link opens a lazy tab",
+    "description": "Settings page: checkbox label."
+  },
+  "optMiddleClickHint": {
+    "message": "Off: middle-click behaves as usual in Firefox.",
+    "description": "Settings page: hint below the middle-click checkbox."
+  },
+  "optCtrlClick": {
+    "message": "Ctrl+click on a link opens a lazy tab",
+    "description": "Settings page: checkbox label. On macOS this is Cmd+click."
+  },
+  "optCtrlClickHint": {
+    "message": "Off: Ctrl+click behaves as usual in Firefox.",
+    "description": "Settings page: hint below the Ctrl+click checkbox."
+  },
+  "optContextMenuHint": {
+    "message": "The context menu entries for links and bookmarks are always available.",
+    "description": "Settings page: general hint at the bottom."
+  }
+}

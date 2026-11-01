@@ -1,0 +1,32 @@
+{
+  "extensionName": {
+    "message": "Lazy Background Tabs"
+  },
+  "extensionDescription": {
+    "message": "Öffnet Tabs im Hintergrund, die erst beim Anklicken laden – für Lesezeichen-Ordner, Links und optional per Mittelklick."
+  },
+  "menuOpenLink": {
+    "message": "Link in Lazy-Tab öffnen"
+  },
+  "menuOpenBookmark": {
+    "message": "In Lazy-Tab öffnen"
+  },
+  "menuOpenFolder": {
+    "message": "Alle in Lazy-Tabs öffnen"
+  },
+  "optMiddleClick": {
+    "message": "Mittelklick auf Links öffnet einen Lazy-Tab"
+  },
+  "optMiddleClickHint": {
+    "message": "Aus: Mittelklick verhält sich wie in Firefox üblich."
+  },
+  "optCtrlClick": {
+    "message": "Strg+Klick auf Links öffnet einen Lazy-Tab"
+  },
+  "optCtrlClickHint": {
+    "message": "Aus: Strg+Klick verhält sich wie in Firefox üblich."
+  },
+  "optContextMenuHint": {
+    "message": "Kontextmenü-Einträge für Links und Lesezeichen sind immer verfügbar."
+  }
+}

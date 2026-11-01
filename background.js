@@ -8,7 +8,7 @@ const MENU_ID = "open-link-lazy";
 
 browser.menus.create({
   id: MENU_ID,
-  title: "Link in Lazy-Tab öffnen",
+  title: browser.i18n.getMessage("menuOpenLink"),
   contexts: ["link"],
 });
 
@@ -16,7 +16,7 @@ const BOOKMARK_MENU_ID = "open-bookmark-lazy";
 
 browser.menus.create({
   id: BOOKMARK_MENU_ID,
-  title: "In Lazy-Tab öffnen",
+  title: browser.i18n.getMessage("menuOpenBookmark"),
   contexts: ["bookmark"],
 });
 
@@ -28,7 +28,7 @@ browser.menus.onShown.addListener(async (info) => {
     const isFolder = node.type === "folder";
     const isSeparator = node.type === "separator";
     await browser.menus.update(BOOKMARK_MENU_ID, {
-      title: isFolder ? "Alle in Lazy-Tabs öffnen" : "In Lazy-Tab öffnen",
+      title: browser.i18n.getMessage(isFolder ? "menuOpenFolder" : "menuOpenBookmark"),
       visible: !isSeparator,
     });
     browser.menus.refresh();

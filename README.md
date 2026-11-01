@@ -7,14 +7,19 @@ Useful for opening many tabs at once (e.g. a whole bookmark folder) without hogg
 
 ## Features
 
-- **Bookmark folders:** right-click a folder → *Alle in Lazy-Tabs öffnen* (open all in lazy tabs).
+- **Bookmark folders:** right-click a folder → *Open All in Lazy Tabs*.
   Like Firefox's own *Open All in Tabs*, but the tabs are only loaded when selected.
-- **Single bookmarks:** right-click → *In Lazy-Tab öffnen*.
-- **Links:** right-click → *Link in Lazy-Tab öffnen*.
+- **Single bookmarks:** right-click → *Open in Lazy Tab*.
+- **Links:** right-click → *Open Link in Lazy Tab*.
 - **Optional:** middle-click and/or Ctrl+click on links open lazy tabs (configurable in the add-on settings,
   middle-click is off by default).
 
 New tabs are placed next to the current tab in click order and keep the current tab's container.
+
+## Languages
+
+English (default) and German. The UI follows Firefox's language setting.
+To add a language, copy `_locales/en/messages.json` to `_locales/<code>/messages.json` and translate the `message` values.
 
 ## Development
 

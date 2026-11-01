@@ -2,7 +2,7 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
-<html lang="de">
+<html>
 <head>
   <meta charset="utf-8">
   <style>
@@ -14,19 +14,22 @@
   </style>
 </head>
 <body>
+  <!-- Texte kommen aus _locales/*/messages.json (siehe options.js) -->
   <label>
     <input type="checkbox" id="middleClick">
-    <span>Mittelklick auf Links öffnet einen Lazy-Tab
-      <span class="hint">Aus: Mittelklick verhält sich wie in Firefox üblich.</span>
+    <span>
+      <span data-i18n="optMiddleClick"></span>
+      <span class="hint" data-i18n="optMiddleClickHint"></span>
     </span>
   </label>
   <label>
     <input type="checkbox" id="ctrlClick">
-    <span>Strg+Klick auf Links öffnet einen Lazy-Tab
-      <span class="hint">Aus: Strg+Klick verhält sich wie in Firefox üblich.</span>
+    <span>
+      <span data-i18n="optCtrlClick"></span>
+      <span class="hint" data-i18n="optCtrlClickHint"></span>
     </span>
   </label>
-  <p class="hint">Kontextmenü-Einträge für Links und Lesezeichen sind immer verfügbar.</p>
+  <p class="hint" data-i18n="optContextMenuHint"></p>
 
   <script src="settings.js"></script>
   <script src="options.js"></script>
