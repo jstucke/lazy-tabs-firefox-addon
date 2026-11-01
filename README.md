@@ -1,3 +1,5 @@
+<img src="icons/icon.svg" width="96" alt="">
+
 # Lazy Background Tabs
 
 A Firefox add-on that opens tabs in the background **without loading them** until you click on them.
