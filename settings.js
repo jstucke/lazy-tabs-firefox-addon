@@ -6,7 +6,6 @@
 
 // Shared by the background script and the options page.
 
-/* eslint-disable no-unused-vars */
 const DEFAULT_SETTINGS = {
   middleClick: false, // middle-click on links -> lazy tab
   ctrlClick: false, // Ctrl+click (Mac: Cmd+click) on links -> lazy tab

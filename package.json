@@ -1,0 +1,27 @@
+{
+  "name": "lazy-background-tabs",
+  "private": true,
+  "description": "Development tooling for the Lazy Background Tabs Firefox add-on",
+  "license": "MPL-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "lint": "web-ext lint",
+    "build": "web-ext build --overwrite-dest",
+    "start": "web-ext run",
+    "check:locales": "node scripts/check-locales.mjs"
+  },
+  "webExt": {
+    "ignoreFiles": [
+      "package.json",
+      "package-lock.json",
+      "eslint.config.mjs",
+      "scripts",
+      "screenshots"
+    ]
+  },
+  "devDependencies": {
+    "web-ext": "10.8.0"
+  }
+}

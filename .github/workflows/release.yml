@@ -1,0 +1,52 @@
+name: Release
+
+# Builds the ZIP for addons.mozilla.org and attaches it to the GitHub release.
+# Create the release with a tag matching the manifest version, e.g. v1.2.0.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # upload the release asset
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          # no dependency cache in the release workflow (cache poisoning)
+          package-manager-cache: false
+
+      - run: npm ci --ignore-scripts
+
+      - name: Check that tag matches manifest version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          version=$(node -p 'require("./manifest.json").version')
+          if [ "${TAG#v}" != "$version" ]; then
+            echo "::error::Release tag '$TAG' does not match manifest version '$version'"
+            exit 1
+          fi
+
+      # The full checks (pre-commit) already ran in CI on main
+      - name: Lint add-on
+        run: npm run lint
+
+      - name: Build ZIP
+        run: npm run build
+
+      - name: Attach ZIP to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$TAG" web-ext-artifacts/*.zip --clobber --repo "$GITHUB_REPOSITORY"
